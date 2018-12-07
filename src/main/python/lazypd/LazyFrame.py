@@ -1,6 +1,7 @@
 import pandas as pd
 import types
 import numpy as np
+from inspect import signature
 
 class LazyFrame:
   @staticmethod
@@ -23,7 +24,9 @@ class LazyFrame:
     def _get_item_cache(self,item):
       cache = self._item_cache
       if item in lazy_columns and item not in cache:
-        ret_val = self.X * self.Y
+        func = lazy_columns[ item ]
+        params = [ self[param] for param in [*signature(func).parameters]]
+        ret_val = func( *params )
         cache[ item ] = ret_val
         ret_val._set_as_cached(item,self)
       return super_get_item_cache(item)

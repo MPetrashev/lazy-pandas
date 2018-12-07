@@ -23,10 +23,15 @@ class LazyFrameTest(unittest.TestCase):
   def testExplicitAccess(self):
     df = self._df()
     x = df.Square
-    self.assertEquals(35,x.sum())
+    self.assertEqual(35,x.sum())
 
   def testAccessByName(self):
     df = self._df()
     x = df['Square']
-    self.assertEquals(35,x.sum())
+    self.assertEqual(35,x.sum())
+
+  def testAccessByName2(self):
+    df = self._df()
+    x = df[['X','Y','Square']]
+    # self.assertEqual(35,x.sum()['Square'])
 
