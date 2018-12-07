@@ -16,7 +16,8 @@ class LazyFrame:
     super_get_item_cache = getattr(df,'_get_item_cache')
 
     def _getitem_array(self, key):
-      key.remove('Square')
+      lazy_keys = lazy_columns.keys()
+      key = [k for k in key if k not in lazy_keys]
       ret_val = super_getitem_array(key)
       LazyFrame.add_lazy_columns( ret_val, lazy_columns=lazy_columns)
       return ret_val

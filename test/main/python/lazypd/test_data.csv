@@ -1,6 +1,6 @@
-X,Y
-5,1
-1,5
-3,3
-4,2
-2,4
+name,X,Y
+shape1,5,1
+shape1,1,5
+shape2,3,3
+shape2,4,2
+shape1,2,4

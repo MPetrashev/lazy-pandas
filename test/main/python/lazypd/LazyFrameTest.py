@@ -15,8 +15,8 @@ class LazyFrameTest(unittest.TestCase):
   def _df(self):
     df = pd.read_csv(self.get_file_next_to_me('test_data.csv'))
     LazyFrame.add_lazy_columns(df, lazy_columns= {
-      'Square' : lambda X,Y: X*Y,
-      'Perimeter': lambda X,Y: 2*math.pi * (X+Y)
+      'Square' : lambda X, Y: X*Y,
+      'Perimeter': lambda X, Y: 2*math.pi * (X+Y)
     })
     return df
 
@@ -35,3 +35,8 @@ class LazyFrameTest(unittest.TestCase):
     x = df[['X','Y','Square']]
     # self.assertEqual(35,x.sum()['Square'])
 
+  def testGroupBy(self):
+    df = self._df()
+    x = df.groupby(['name'])
+    x = x.sum().reset_index()
+    self.assertEqual(35,x)
