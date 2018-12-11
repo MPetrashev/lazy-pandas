@@ -10,7 +10,17 @@ class LazyFrame:
     # if name in self._info_axis:
     # in pandas.core.generic.NDFrame#__getattr__
     new_columns = np.append(df.columns, [*lazy_columns] )
+    original_data = df._data.copy()
     df._data.axes[ 0 ] = pd.core.indexes.base.Index( new_columns )
+    #But now we break: pandas.core.internals.BlockManager#_rebuild_blknos_and_blklocs because it counts the length of
+    #self.shape[0] with lazy_columns as well. And throws AssertionError("Gaps in blk ref_locs"). To fix it we do it:
+    super_copy = getattr(df,'copy')
+    def copy(self,deep=True):
+      data = original_data.copy(deep=deep)
+      df = pd.DataFrame(data).__finalize__(self)
+      return LazyFrame.add_lazy_columns(df,lazy_columns=lazy_columns)
+    if super_copy != copy:
+      setattr(df,'copy',types.MethodType(copy,df))
 
     super_getitem_array = getattr(df,'_getitem_array')
     super_get_item_cache = getattr(df,'_get_item_cache')
@@ -35,3 +45,5 @@ class LazyFrame:
     if super_get_item_cache != _get_item_cache:
       setattr(df,'_getitem_array', types.MethodType(_getitem_array,df))
       setattr(df,'_get_item_cache', types.MethodType(_get_item_cache,df))
+
+    return df

@@ -1,6 +1,7 @@
 from lazypd.LazyFrame import LazyFrame
 import unittest
 import pandas as pd
+import numpy as np
 import inspect
 import os
 import math
@@ -14,11 +15,10 @@ class LazyFrameTest(unittest.TestCase):
 
   def _df(self):
     df = pd.read_csv(self.get_file_next_to_me('test_data.csv'))
-    LazyFrame.add_lazy_columns(df, lazy_columns= {
+    return LazyFrame.add_lazy_columns(df, lazy_columns= {
       'Square' : lambda X, Y: X*Y,
       'Perimeter': lambda X, Y: 2*math.pi * (X+Y)
     })
-    return df
 
   def testExplicitAccess(self):
     df = self._df()
@@ -37,6 +37,10 @@ class LazyFrameTest(unittest.TestCase):
 
   def testGroupBy(self):
     df = self._df()
-    x = df.groupby(['name'])
-    x = x.sum().reset_index()
-    self.assertEqual(35,x)
+    x = df.groupby(['name']).Square.sum()
+    np.testing.assert_array_equal([18,17],x)
+
+  def testCopy(self):
+    df = self._df()
+    df = df.copy()
+    self.assertEqual(35,df.Square.sum())
